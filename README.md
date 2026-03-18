@@ -73,29 +73,87 @@ java jeuDeLaVie.Main
 2. Laisser Maven télécharger les dépendances
 3. Exécuter la classe `Main.java`
 
-## 🎯 Utilisation
+## 🎯 Utilisation - Démarrage Rapide
 
 Une fois lancé, le programme :
-1. Crée une grille de 50x50 cellules
-2. Initialise aléatoirement des cellules vivantes (30% de probabilité)
-3. Affiche l'interface graphique
-4. Calcule automatiquement les générations successives
-5. Affiche les statistiques dans la console
+1. Crée une grille de **100×100 cellules**
+2. Initialise aléatoirement des cellules vivantes (50% de probabilité)
+3. Affiche l'interface graphique avec panneau de contrôle à droite
+4. Permet la simulation automatique ou manuelle des générations
+5. Affiche l'état actuel (numéro de génération, cellules vivantes, etc.)
 
-## ✨ Fonctionnalités ajoutées
+## ✨ Fonctionnalités Principales
 
-- **Mode dessin** : activez *Mode dessin* puis cliquez/glissez
-   - clic gauche : cellule vivante
-   - clic droit : cellule morte
-- **Code couleur par voisinage** : les cellules vivantes sont colorées en nuances de rouge selon leur nombre de voisins vivants
-- **Sauvegarde/chargement de patterns** : boutons *Sauvegarder* et *Charger* dans le panneau *Édition* (format `*.jdlv`)
+### 🎮 Simulation et Animation
+- **Démarrer/Arrêter** : Lance ou pause la simulation automatique
+- **Suivant** : Calcule une génération supplémentaire manuellement
+- **Contrôle de vitesse** : Ajustez la vitesse de la simulation (lent ↔ rapide)
+- **Numéro de génération** : Affichage du nombre de générations écoulées
+- **Compteur de cellules vivantes** : Suivi des statistiques en temps réel
+
+### 🎨 Mode Dessin
+- **Passer en mode dessin** : Activez le mode édition pour modifier la grille
+  - **Clic gauche** : Créer une cellule vivante
+  - **Clic droit** : Supprimer une cellule (la rendre morte)
+  - **Glister-déposer** : Dessiner continuellement
+- **Code couleur par voisinage** : Les cellules vivantes sont colorées en nuances de rouge selon leur nombre de voisins vivants (plus sombre = plus de voisins)
+
+### 📏 Grille et Navigation
+- **Taille configurable** : Modifiez les dimensions de la grille (dialogue *Taille de la grille*)
+- **Grille 100×100 par défaut** : Pre-configurée au lancement
+- **Navigation fluide** : Utilisez la molette souris et les barres de défilement
+
+### 📁 Gestion des Patterns
+- **Sauvegarder** : Exporte l'état actuel de la grille au format `.jdlv` (texte lisible)
+- **Charger** : Importe un pattern sauvegardé précédemment
+- **Format** : Stockage simple (dimensions + grille en 0/1)
+
+### 🔄 Règles du Jeu (5 Variantes)
+Sélectionnez une règle dans le menu *Règles* :
+
+1. **Classique** (Conway)
+   - Cellule vivante avec 2-3 voisins → survit
+   - Cellule morte avec exactement 3 voisins → naît
+   - *Comportement original du Jeu de la Vie de John Conway*
+
+2. **HighLife**
+   - Cellule vivante avec 2-3 voisins → survit
+   - Cellule morte avec 3 ou 6 voisins → naît
+   - *Variation créée par John von Neumann qui ajoute des structures supplémentaires*
+
+3. **Day and Night**
+   - Cellule vivante avec 3, 4, 6, 7 ou 8 voisins → survit
+   - Cellule morte avec 3, 6, 7 ou 8 voisins → naît
+   - *Règles symétriques produisant des patterns très complexes et stables*
+
+4. **Seeds**
+   - Cellule vivante : meurt toujours (ne survit jamais)
+   - Cellule morte avec exactement 3 voisins → naît
+   - *Produit des patterns éphémères et fragmentés qui disparaissent rapidement*
+
+5. **Vie sans la mort**
+   - Cellule vivante : survit toujours (immortelle)
+   - Cellule morte avec exactement 3 voisins → naît
+   - *Les cellules une fois nées ne meurent jamais - la population ne cesse de croître*
+
+### 🎁 Formes Pré-construites
+Insérez rapidement des patterns classiques avec les boutons *Formes* :
+- **Blinker** : Oscillateur simple de période 2
+- **Glider** : Motif mobile qui se déplace diagonalement
+- **LWSS** (Lightweight SpaceShip) : Vaisseau spatial léger qui se déplace horizontalement
+- **Pulsar** : Oscillateur de période 3 créant un motif en croix
+
+### 🔧 Actions Globales
+- **Reset** : Effacez la grille et la réinitialisez aléatoirement
+- **Taille de la grille** : Modifiez les dimensions (relance la grille)
+- **Quitter** : Ferme l'application
 
 ## 🏗️ Architecture des Design Patterns
 
 ### 1. Pattern État
 - **Cellule** : Contexte qui délègue son comportement à son état
 - **CelluleEtat** : Interface définissant les états possibles
-- **CelluleEtatVivant / CelluleEtatMort** : Implémentations concrètes
+- **CelluleEtatVivant / CelluleEtatMort** : Implémentations concrètes (Singleton)
 
 ### 2. Pattern Singleton
 - Les états `CelluleEtatVivant` et `CelluleEtatMort` sont des Singletons
@@ -136,13 +194,18 @@ Une fois lancé, le programme :
            └─► JeuDeLaVieUI redessine la grille
 ```
 
-## 🎨 Règles du Jeu (Visiteur Classique)
+## 🔬 Détail Technique des Règles de Conway
 
-Les **règles de Conway** :
-- Une cellule **morte** avec **exactement 3 voisines vivantes** → **naît**
-- Une cellule **vivante** avec **moins de 2 voisines** → **meurt** (solitude)
-- Une cellule **vivante** avec **2 ou 3 voisines** → **survit**
-- Une cellule **vivante** avec **plus de 3 voisines** → **meurt** (surpopulation)
+Le **pattern Visiteur** `VisiteurClassique` implémente les règles comme suit :
+
+| État | Condition | Résultat |
+|------|-----------|----------|
+| 🟢 Vivante | < 2 voisins | Meurt (solitude) |
+| 🟢 Vivante | 2-3 voisins | Survit |
+| 🟢 Vivante | > 3 voisins | Meurt (surpopulation) |
+| ⚪ Morte | = 3 voisins | Naît (reproduction) |
+
+Cette implémentation crée des patterns stables (still lifes), oscillateurs, et engins spatiaux (spaceships).
 
 ## 🔧 Extensions Possibles
 
