@@ -30,8 +30,6 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>${project.basedir}</sourceDirectory>
-        
         <plugins>
             <!-- Plugin de compilation -->
             <plugin>
